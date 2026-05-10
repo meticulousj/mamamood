@@ -287,41 +287,77 @@ export default function Home() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
-          <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="pt-6">
-              <div className="text-center space-y-3">
-                <Sparkles className="w-8 h-8 text-accent mx-auto" />
-                <h3 className="font-semibold text-foreground" style={{ fontFamily: 'Poppins' }}>Affirmations</h3>
-                <p className="text-sm text-muted-foreground" style={{ fontFamily: 'Lora' }}>
-                  Personalized daily affirmations
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => window.location.href = '/affirmations'}
+            className="text-left"
+          >
+            <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
+              <CardContent className="pt-6">
+                <div className="text-center space-y-3">
+                  <Sparkles className="w-8 h-8 text-accent mx-auto" />
+                  <h3 className="font-semibold text-foreground" style={{ fontFamily: 'Poppins' }}>Affirmations</h3>
+                  <p className="text-sm text-muted-foreground" style={{ fontFamily: 'Lora' }}>
+                    Personalized daily affirmations
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.button>
 
-          <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="pt-6">
-              <div className="text-center space-y-3">
-                <BookOpen className="w-8 h-8 text-accent mx-auto" />
-                <h3 className="font-semibold text-foreground" style={{ fontFamily: 'Poppins' }}>Journal</h3>
-                <p className="text-sm text-muted-foreground" style={{ fontFamily: 'Lora' }}>
-                  Private journaling space
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => window.location.href = '/journal'}
+            className="text-left"
+          >
+            <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
+              <CardContent className="pt-6">
+                <div className="text-center space-y-3">
+                  <BookOpen className="w-8 h-8 text-accent mx-auto" />
+                  <h3 className="font-semibold text-foreground" style={{ fontFamily: 'Poppins' }}>Journal</h3>
+                  <p className="text-sm text-muted-foreground" style={{ fontFamily: 'Lora' }}>
+                    Private journaling space
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.button>
 
-          <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="pt-6">
-              <div className="text-center space-y-3">
-                <Music className="w-8 h-8 text-accent mx-auto" />
-                <h3 className="font-semibold text-foreground" style={{ fontFamily: 'Poppins' }}>Meditations</h3>
-                <p className="text-sm text-muted-foreground" style={{ fontFamily: 'Lora' }}>
-                  Guided meditation sessions
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => window.location.href = '/meditations'}
+            className="text-left"
+          >
+            <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
+              <CardContent className="pt-6">
+                <div className="text-center space-y-3">
+                  <Music className="w-8 h-8 text-accent mx-auto" />
+                  <h3 className="font-semibold text-foreground" style={{ fontFamily: 'Poppins' }}>Meditations</h3>
+                  <p className="text-sm text-muted-foreground" style={{ fontFamily: 'Lora' }}>
+                    Guided meditation sessions
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.button>
+        </motion.div>
+
+        {/* Insights Link */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+        >
+          <Button
+            onClick={() => window.location.href = '/insights'}
+            className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground"
+            style={{ fontFamily: 'Inter' }}
+          >
+            View Your Insights & Analytics
+          </Button>
         </motion.div>
       </main>
     </div>
