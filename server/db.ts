@@ -1,6 +1,6 @@
 import { eq, and, gte, lt, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, moodCheckins, affirmations, journalEntries, meditationSessions, userMeditationHistory, dailyStreaks, affirmationAudioSettings } from "../drizzle/schema";
+import { InsertUser, users, moodCheckins, affirmations, journalEntries, meditationSessions, userMeditationHistory, dailyStreaks, affirmationAudioSettings, userThetaSettings } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -539,4 +539,67 @@ export async function updateAffirmationAudio(affirmationId: number, audioUrl: st
     .update(affirmations)
     .set({ audioUrl, audioGeneratedAt: new Date() })
     .where(eq(affirmations.id, affirmationId));
+}
+
+
+// Theta frequency queries
+export async function getOrCreateUserThetaSettings(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  const existing = await db
+    .select()
+    .from(userThetaSettings)
+    .where(eq(userThetaSettings.userId, userId))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    return existing[0];
+  }
+  
+  // Create default theta settings
+  await db.insert(userThetaSettings).values({
+    userId,
+    preferredFrequency: 6.0 as any,
+    thetaVolume: 30,
+    enableTheta: true,
+  });
+  
+  const created = await db
+    .select()
+    .from(userThetaSettings)
+    .where(eq(userThetaSettings.userId, userId))
+    .limit(1);
+  
+  return created[0];
+}
+
+export async function updateUserThetaSettings(userId: number, settings: Partial<Record<string, any>>) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  await db
+    .update(userThetaSettings)
+    .set(settings)
+    .where(eq(userThetaSettings.userId, userId));
+}
+
+export async function updateMeditationThetaFrequency(meditationId: number, frequency: number, includeAmbient: boolean) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  await db
+    .update(meditationSessions)
+    .set({ thetaFrequency: frequency as any, includeAmbientTones: includeAmbient })
+    .where(eq(meditationSessions.id, meditationId));
+}
+
+export async function getMeditationsWithThetaTones() {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  return await db
+    .select()
+    .from(meditationSessions)
+    .where(eq(meditationSessions.includeAmbientTones, true));
 }

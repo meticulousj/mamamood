@@ -6,6 +6,7 @@ import { z } from "zod";
 import { invokeLLM } from "./_core/llm";
 import { getDb } from "./db";
 import { eq } from "drizzle-orm";
+import { getOrCreateUserThetaSettings, updateUserThetaSettings, updateMeditationThetaFrequency, getMeditationsWithThetaTones } from "./db";
 import { affirmations as affirmationsTable } from "../drizzle/schema";
 
 import {
@@ -366,6 +367,44 @@ Return ONLY the prompt without any additional text or explanation.`;
         return await getMoodCheckInHistory(ctx.user.id, input.days);
       }),
   }),
+  
+  // Theta frequency ambient soundwaves router
+  theta: router({
+    getThetaSettings: protectedProcedure.query(async ({ ctx }) => {
+      return await getOrCreateUserThetaSettings(ctx.user.id);
+    }),
+    
+    updateThetaSettings: protectedProcedure
+      .input(z.object({
+        preferredFrequency: z.number().min(4).max(8).optional(),
+        thetaVolume: z.number().min(0).max(100).optional(),
+        enableTheta: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const settings: Record<string, any> = {};
+        if (input.preferredFrequency !== undefined) settings.preferredFrequency = input.preferredFrequency;
+        if (input.thetaVolume !== undefined) settings.thetaVolume = input.thetaVolume;
+        if (input.enableTheta !== undefined) settings.enableTheta = input.enableTheta;
+        
+        await updateUserThetaSettings(ctx.user.id, settings);
+        return { success: true };
+      }),
+    
+    getMeditationsWithTheta: protectedProcedure.query(async () => {
+      return await getMeditationsWithThetaTones();
+    }),
+    
+    updateMeditationTheta: protectedProcedure
+      .input(z.object({
+        meditationId: z.number(),
+        frequency: z.number().min(4).max(8),
+        includeAmbient: z.boolean(),
+      }))
+      .mutation(async ({ input }) => {
+        await updateMeditationThetaFrequency(input.meditationId, input.frequency, input.includeAmbient);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
@@ -422,3 +461,5 @@ export type AppRouter = typeof appRouter;
         return { success: true };
       }),
 */
+
+

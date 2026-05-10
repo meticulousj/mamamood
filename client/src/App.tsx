@@ -10,6 +10,7 @@ import SavedAffirmations from "./pages/SavedAffirmations";
 import Journal from "./pages/Journal";
 import Meditations from "./pages/Meditations";
 import Insights from "./pages/Insights";
+import { ThetaFrequencyPlayer } from "./components/ThetaFrequencyPlayer";
 
 function Router() {
   return (
@@ -34,6 +35,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <ThetaFrequencyPlayer />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

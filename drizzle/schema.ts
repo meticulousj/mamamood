@@ -94,11 +94,26 @@ export const meditationSessions = mysqlTable("meditation_sessions", {
   audioUrl: varchar("audioUrl", { length: 512 }), // S3 URL to audio file
   transcript: text("transcript"), // Optional text transcript
   instructor: varchar("instructor", { length: 255 }),
+  thetaFrequency: decimal("thetaFrequency", { precision: 3, scale: 1 }),
+  includeAmbientTones: boolean("includeAmbientTones").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
 export type MeditationSession = typeof meditationSessions.$inferSelect;
 export type InsertMeditationSession = typeof meditationSessions.$inferInsert;
+
+export const userThetaSettings = mysqlTable("user_theta_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  preferredFrequency: decimal("preferredFrequency", { precision: 3, scale: 1 }).default("6.0").notNull(),
+  thetaVolume: tinyint("thetaVolume").default(30).notNull(),
+  enableTheta: boolean("enableTheta").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserThetaSettings = typeof userThetaSettings.$inferSelect;
+export type InsertUserThetaSettings = typeof userThetaSettings.$inferInsert;
 
 // User meditation history: Track completed meditations
 export const userMeditationHistory = mysqlTable("user_meditation_history", {

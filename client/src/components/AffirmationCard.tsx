@@ -82,15 +82,15 @@ export default function AffirmationCard({
 
           {/* Action buttons */}
           <div className="flex gap-2 pt-2">
-            <motion.button
+            <motion.div
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              onClick={onToggleFavorite}
               className="flex-1"
             >
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={onToggleFavorite}
                 className={`w-full ${
                   isFavorite
                     ? "text-accent bg-accent/10"
@@ -103,7 +103,7 @@ export default function AffirmationCard({
                 />
                 {isFavorite ? "Saved" : "Save"}
               </Button>
-            </motion.button>
+            </motion.div>
 
             <Button
               variant="ghost"

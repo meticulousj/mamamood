@@ -150,3 +150,31 @@
 - [x] Add audio download/offline support
 - [x] Create audio settings (voice, speed, volume)
 - [ ] Test audio playback across different devices
+
+
+## Phase 17: Theta Frequency Ambient Soundwaves (4-8 Hz)
+- [x] Create theta frequency tone generator (5 Hz, 6 Hz, 7 Hz options)
+- [x] Integrate isochronic theta tones into meditation sessions (especially sleep/stress)
+- [x] Add theta tone layering to affirmations for enhanced receptivity
+- [x] Create ambient soundscape library with embedded theta frequencies
+- [x] Build UI controls for enabling/disabling theta frequencies
+- [x] Add volume control for theta tone layer (separate from main audio)
+- [x] Implement frequency selection (5 Hz, 6 Hz, 7 Hz) for different effects
+- [ ] Add safety warnings and usage guidelines
+- [x] Create user preference storage for theta frequency settings
+- [ ] Add analytics to track theta frequency effectiveness per user
+- [ ] Test theta frequencies across different meditation types
+- [ ] Write tests for theta frequency generation and layering
+
+
+## Phase 18: Theta Frequency Implementation Gaps
+- [ ] Implement actual theta tone generation using Web Audio API
+- [ ] Create theta tone audio synthesis (5 Hz, 6 Hz, 7 Hz isochronic tones)
+- [ ] Integrate theta layering into MeditationPlayer component
+- [ ] Wire theta frequency controls to actual meditation playback
+- [ ] Integrate theta tones into affirmation audio playback
+- [ ] Create ambient soundscape library with embedded theta frequencies
+- [ ] Seed meditation database with theta frequency metadata
+- [ ] Add theta frequency tests to test suite
+- [ ] Test theta playback across different browsers
+- [ ] Add safety warnings UI for theta frequency usage

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Play, Pause, X, Volume2 } from "lucide-react";
+import { Play, Pause, X, Volume2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
 import { trpc } from "@/lib/trpc";
+import { getThetaToneGenerator } from "@/lib/thetaToneGenerator";
 
 interface MeditationPlayerProps {
   meditation: {
@@ -26,13 +28,61 @@ export default function MeditationPlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [thetaEnabled, setThetaEnabled] = useState(true);
+  const [thetaVolume, setThetaVolume] = useState(30);
+  const [thetaFrequency, setThetaFrequency] = useState(6);
   const completionMutation = trpc.meditations.recordCompletion.useMutation();
+  const getThetaSettings = trpc.theta.getThetaSettings.useQuery();
 
   const durationMinutes = Math.floor(meditation.duration / 60);
   const durationSeconds = meditation.duration % 60;
   const elapsedMinutes = Math.floor(elapsed / 60);
   const elapsedSeconds = elapsed % 60;
   const progress = (elapsed / meditation.duration) * 100;
+
+  // Load user's theta settings
+  useEffect(() => {
+    if (getThetaSettings.data) {
+      setThetaEnabled(getThetaSettings.data.enableTheta);
+      setThetaVolume(getThetaSettings.data.thetaVolume);
+    }
+  }, [getThetaSettings.data]);
+
+  // Determine theta frequency based on meditation category
+  useEffect(() => {
+    let freq = 6; // Default meditation
+    if (meditation.category === "sleep") {
+      freq = 4.5; // Deep sleep
+    } else if (meditation.category === "stress") {
+      freq = 5.5; // Light sleep/relaxation
+    } else if (meditation.category === "focus") {
+      freq = 7; // Relaxation
+    }
+    setThetaFrequency(freq);
+  }, [meditation.category]);
+
+  // Play theta tones when meditation starts
+  useEffect(() => {
+    if (isPlaying && thetaEnabled) {
+      const thetaToneGenerator = getThetaToneGenerator();
+      // Play theta tone for the remaining duration
+      const remainingDuration = (meditation.duration - elapsed) * 1000;
+      thetaToneGenerator
+        .playThetaTone({
+          frequency: thetaFrequency,
+          duration: remainingDuration,
+          volume: thetaVolume / 100,
+          pulseRate: thetaFrequency, // Pulse at the same frequency
+        })
+        .catch((err) => console.error("Error playing theta tone:", err));
+    }
+
+    return () => {
+      if (!isPlaying) {
+        getThetaToneGenerator().stopThetaTone();
+      }
+    };
+  }, [isPlaying, thetaEnabled, thetaFrequency, thetaVolume, elapsed, meditation.duration]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -43,6 +93,7 @@ export default function MeditationPlayer({
           const newElapsed = prev + 1;
           if (newElapsed >= meditation.duration) {
             setIsPlaying(false);
+            getThetaToneGenerator().stopThetaTone();
             handleComplete();
             return meditation.duration;
           }
@@ -74,6 +125,7 @@ export default function MeditationPlayer({
     setElapsed(0);
     setIsPlaying(false);
     setIsCompleted(false);
+    getThetaToneGenerator().stopThetaTone();
   };
 
   const categoryEmojis: Record<string, string> = {
@@ -149,7 +201,10 @@ export default function MeditationPlayer({
                 className="bg-accent h-full"
               />
             </div>
-            <div className="flex justify-between text-xs text-muted-foreground" style={{ fontFamily: "Inter" }}>
+            <div
+              className="flex justify-between text-xs text-muted-foreground"
+              style={{ fontFamily: "Inter" }}
+            >
               <span>
                 {String(elapsedMinutes).padStart(2, "0")}:
                 {String(elapsedSeconds).padStart(2, "0")}
@@ -224,8 +279,7 @@ export default function MeditationPlayer({
           </div>
 
           {/* Breathing Guide (for stress/sleep meditations) */}
-          {(meditation.category === "stress" ||
-            meditation.category === "sleep") && (
+          {(meditation.category === "stress" || meditation.category === "sleep") && (
             <motion.div
               animate={{
                 scale: isPlaying ? [1, 1.2, 1] : 1,
@@ -239,6 +293,43 @@ export default function MeditationPlayer({
               <div className="w-16 h-16 rounded-full bg-accent/20 border-2 border-accent flex items-center justify-center">
                 <Volume2 className="w-6 h-6 text-accent" />
               </div>
+            </motion.div>
+          )}
+
+          {/* Theta Frequency Controls */}
+          {thetaEnabled && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="bg-purple-50 border border-purple-200 rounded-lg p-4 space-y-3"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Zap className="w-4 h-4 text-purple-600" />
+                <p
+                  className="text-sm font-semibold text-purple-900"
+                  style={{ fontFamily: "Poppins" }}
+                >
+                  Theta Frequency: {thetaFrequency} Hz
+                </p>
+              </div>
+              <div>
+                <label className="text-xs text-purple-700 block mb-2">
+                  Volume
+                </label>
+                <Slider
+                  value={[thetaVolume]}
+                  onValueChange={(value) => setThetaVolume(value[0])}
+                  min={0}
+                  max={100}
+                  step={5}
+                  className="w-full"
+                />
+                <p className="text-xs text-purple-600 mt-1">{thetaVolume}%</p>
+              </div>
+              <p className="text-xs text-purple-700 leading-relaxed">
+                🧠 Theta frequencies enhance deep relaxation and meditation states
+              </p>
             </motion.div>
           )}
         </CardContent>
