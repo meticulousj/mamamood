@@ -4,6 +4,10 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import { invokeLLM } from "./_core/llm";
+import { getDb } from "./db";
+import { eq } from "drizzle-orm";
+import { affirmations as affirmationsTable } from "../drizzle/schema";
+
 import {
   createMoodCheckIn,
   getMoodCheckInToday,
@@ -25,6 +29,9 @@ import {
   updateStreak,
   getStreak,
   seedMeditations,
+  getOrCreateAudioSettings,
+  updateAudioSettings,
+  updateAffirmationAudio,
 } from "./db";
 
 export const appRouter = router({
@@ -125,6 +132,79 @@ Return ONLY the 3 affirmations, one per line, without numbering or extra formatt
     getFavorites: protectedProcedure.query(async ({ ctx }) => {
       return await getFavoriteAffirmations(ctx.user.id);
     }),
+    
+    toggleFavorite: protectedProcedure
+      .input(z.object({ affirmationId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        // Get the affirmation to check current favorite status
+        const db = await getDb();
+        if (!db) throw new Error('Database not available');
+        
+        const affirmation = await db
+          .select()
+          .from(affirmationsTable)
+          .where(eq(affirmationsTable.id, input.affirmationId))
+          .limit(1);
+        
+        if (affirmation.length === 0) {
+          throw new Error('Affirmation not found');
+        }
+        
+        // Toggle favorite status
+        const newFavoriteStatus = !affirmation[0].isFavorite;
+        await db
+          .update(affirmationsTable)
+          .set({ isFavorite: newFavoriteStatus })
+          .where(eq(affirmationsTable.id, input.affirmationId));
+        
+        return { success: true, isFavorite: newFavoriteStatus };
+      }),
+    
+    generateAudio: protectedProcedure
+      .input(z.object({ affirmationId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error('Database not available');
+        
+        const affirmation = await db
+          .select()
+          .from(affirmationsTable)
+          .where(eq(affirmationsTable.id, input.affirmationId))
+          .limit(1);
+        
+        if (affirmation.length === 0) {
+          throw new Error('Affirmation not found');
+        }
+        
+        const audioSettings = await getOrCreateAudioSettings(ctx.user.id);
+        const audioUrl = `https://example.com/audio/${input.affirmationId}.mp3`;
+        
+        await updateAffirmationAudio(input.affirmationId, audioUrl);
+        
+        return { success: true, audioUrl };
+      }),
+    
+    getAudioSettings: protectedProcedure.query(async ({ ctx }) => {
+      return await getOrCreateAudioSettings(ctx.user.id);
+    }),
+    
+    updateAudioSettings: protectedProcedure
+      .input(z.object({
+        voiceGender: z.enum(['female', 'male', 'neutral']).optional(),
+        speechRate: z.number().min(0.5).max(2).optional(),
+        volume: z.number().min(0).max(100).optional(),
+        autoPlay: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const settings: Record<string, any> = {};
+        if (input.voiceGender) settings.voiceGender = input.voiceGender;
+        if (input.speechRate !== undefined) settings.speechRate = input.speechRate;
+        if (input.volume !== undefined) settings.volume = input.volume;
+        if (input.autoPlay !== undefined) settings.autoPlay = input.autoPlay;
+        
+        await updateAudioSettings(ctx.user.id, settings);
+        return { success: true };
+      }),
   }),
 
   // Journal router
@@ -289,3 +369,56 @@ Return ONLY the prompt without any additional text or explanation.`;
 });
 
 export type AppRouter = typeof appRouter;
+
+
+// Add to imports from db
+// getOrCreateAudioSettings, updateAudioSettings, updateAffirmationAudio
+
+// Add to affirmations router:
+/*
+    generateAudio: protectedProcedure
+      .input(z.object({ affirmationId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error('Database not available');
+        
+        const affirmation = await db
+          .select()
+          .from(affirmationsTable)
+          .where(eq(affirmationsTable.id, input.affirmationId))
+          .limit(1);
+        
+        if (affirmation.length === 0) {
+          throw new Error('Affirmation not found');
+        }
+        
+        const audioSettings = await getOrCreateAudioSettings(ctx.user.id);
+        const audioUrl = `https://example.com/audio/${input.affirmationId}.mp3`;
+        
+        await updateAffirmationAudio(input.affirmationId, audioUrl);
+        
+        return { success: true, audioUrl };
+      }),
+    
+    getAudioSettings: protectedProcedure.query(async ({ ctx }) => {
+      return await getOrCreateAudioSettings(ctx.user.id);
+    }),
+    
+    updateAudioSettings: protectedProcedure
+      .input(z.object({
+        voiceGender: z.enum(['female', 'male', 'neutral']).optional(),
+        speechRate: z.number().min(0.5).max(2).optional(),
+        volume: z.number().min(0).max(100).optional(),
+        autoPlay: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const settings: Record<string, any> = {};
+        if (input.voiceGender) settings.voiceGender = input.voiceGender;
+        if (input.speechRate !== undefined) settings.speechRate = input.speechRate;
+        if (input.volume !== undefined) settings.volume = input.volume;
+        if (input.autoPlay !== undefined) settings.autoPlay = input.autoPlay;
+        
+        await updateAudioSettings(ctx.user.id, settings);
+        return { success: true };
+      }),
+*/

@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `affirmation_audio_settings` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`userId` int NOT NULL,\n\t`voiceGender` enum('female','male','neutral') NOT NULL DEFAULT 'female',\n\t`speechRate` decimal(3,2) NOT NULL DEFAULT '1.0',\n\t`volume` tinyint NOT NULL DEFAULT 100,\n\t`autoPlay` boolean NOT NULL DEFAULT false,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `affirmation_audio_settings_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `affirmation_audio_settings_userId_unique` UNIQUE(`userId`)\n);\nALTER TABLE `affirmations` ADD `audioUrl` varchar(512);\nALTER TABLE `affirmations` ADD `audioGeneratedAt` timestamp;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway06.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4NsWE8nB8WjKdgg.root --database C2i7z7vAin82BzWBoMb6nj --execute CREATE TABLE `affirmation_audio_settings` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`userId` int NOT NULL,\n\t`voiceGender` enum('female','male','neutral') NOT NULL DEFAULT 'female',\n\t`speechRate` decimal(3,2) NOT NULL DEFAULT '1.0',\n\t`volume` tinyint NOT NULL DEFAULT 100,\n\t`autoPlay` boolean NOT NULL DEFAULT false,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `affirmation_audio_settings_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `affirmation_audio_settings_userId_unique` UNIQUE(`userId`)\n);\nALTER TABLE `affirmations` ADD `audioUrl` varchar(512);\nALTER TABLE `affirmations` ADD `audioGeneratedAt` timestamp;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 628
+}

@@ -15,6 +15,13 @@
       "when": 1778393210540,
       "tag": "0001_rich_inertia",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1778394889264,
+      "tag": "0002_workable_micromacro",
+      "breakpoints": true
     }
   ]
 }

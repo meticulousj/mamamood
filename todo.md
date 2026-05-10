@@ -128,3 +128,25 @@
 - [ ] Add meditation recommendations based on mood
 - [ ] Implement meditation audio generation via LLM
 - [ ] Add meditation session notes/reflections
+
+
+## Phase 15: Affirmations Enhancement
+- [x] Create affirmations seed script with 100+ affirmations
+- [x] Build AffirmationCard component with animations
+- [x] Build SavedAffirmations page to view favorites
+- [ ] Implement affirmation sharing feature
+- [ ] Add affirmation filtering by mood/category
+- [ ] Create affirmation of the day feature
+- [ ] Add affirmation notifications/reminders
+- [ ] Implement affirmation history tracking
+
+
+## Phase 16: Audio Playback for Affirmations
+- [x] Integrate text-to-speech API for affirmation audio generation
+- [x] Create audio storage and caching system
+- [x] Build AudioPlayer component with play/pause/speed controls
+- [x] Add audio progress bar and time display
+- [x] Implement background audio playback capability
+- [x] Add audio download/offline support
+- [x] Create audio settings (voice, speed, volume)
+- [ ] Test audio playback across different devices

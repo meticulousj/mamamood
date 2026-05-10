@@ -46,12 +46,29 @@ export const affirmations = mysqlTable("affirmations", {
   content: text("content").notNull(),
   moodContext: tinyint("moodContext"), // Optional: mood when affirmation was generated
   isFavorite: boolean("isFavorite").default(false).notNull(),
+  audioUrl: varchar("audioUrl", { length: 512 }), // S3 URL to generated audio file
+  audioGeneratedAt: timestamp("audioGeneratedAt"), // When audio was generated
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type Affirmation = typeof affirmations.$inferSelect;
 export type InsertAffirmation = typeof affirmations.$inferInsert;
+
+// Affirmation audio settings: User preferences for audio playback
+export const affirmationAudioSettings = mysqlTable("affirmation_audio_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  voiceGender: mysqlEnum("voiceGender", ["female", "male", "neutral"]).default("female").notNull(),
+  speechRate: decimal("speechRate", { precision: 3, scale: 2 }).default("1.0").notNull(), // 0.5 to 2.0
+  volume: tinyint("volume").default(100).notNull(), // 0-100
+  autoPlay: boolean("autoPlay").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AffirmationAudioSettings = typeof affirmationAudioSettings.$inferSelect;
+export type InsertAffirmationAudioSettings = typeof affirmationAudioSettings.$inferInsert;
 
 // Journal entries: Private daily journaling with rich text
 export const journalEntries = mysqlTable("journal_entries", {

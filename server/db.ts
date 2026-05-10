@@ -1,6 +1,6 @@
 import { eq, and, gte, lt, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, moodCheckins, affirmations, journalEntries, meditationSessions, userMeditationHistory, dailyStreaks } from "../drizzle/schema";
+import { InsertUser, users, moodCheckins, affirmations, journalEntries, meditationSessions, userMeditationHistory, dailyStreaks, affirmationAudioSettings } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -485,4 +485,58 @@ export async function seedMeditations() {
   
   await db.insert(meditationSessions).values(meditations);
   console.log("Meditations seeded successfully");
+}
+
+
+// Audio-related queries
+export async function getOrCreateAudioSettings(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  const existing = await db
+    .select()
+    .from(affirmationAudioSettings)
+    .where(eq(affirmationAudioSettings.userId, userId))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    return existing[0];
+  }
+  
+  // Create default settings
+  await db.insert(affirmationAudioSettings).values({
+    userId,
+    voiceGender: 'female',
+    speechRate: 1.0 as any,
+    volume: 100,
+    autoPlay: false,
+  });
+  
+  const created = await db
+    .select()
+    .from(affirmationAudioSettings)
+    .where(eq(affirmationAudioSettings.userId, userId))
+    .limit(1);
+  
+  return created[0];
+}
+
+export async function updateAudioSettings(userId: number, settings: Partial<Record<string, any>>) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  await db
+    .update(affirmationAudioSettings)
+    .set(settings)
+    .where(eq(affirmationAudioSettings.userId, userId));
+}
+
+export async function updateAffirmationAudio(affirmationId: number, audioUrl: string) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  await db
+    .update(affirmations)
+    .set({ audioUrl, audioGeneratedAt: new Date() })
+    .where(eq(affirmations.id, affirmationId));
 }

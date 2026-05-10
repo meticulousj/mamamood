@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Affirmations from "./pages/Affirmations";
+import SavedAffirmations from "./pages/SavedAffirmations";
 import Journal from "./pages/Journal";
 import Meditations from "./pages/Meditations";
 import Insights from "./pages/Insights";
@@ -13,12 +14,14 @@ import Insights from "./pages/Insights";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/affirmations" component={Affirmations} />
-      <Route path="/journal" component={Journal} />
-      <Route path="/meditations" component={Meditations} />
-      <Route path="/insights" component={Insights} />
-      <Route path="/404" component={NotFound} />
+      <Route path={"/"} component={Home} />
+      <Route path={"/affirmations"} component={Affirmations} />
+      <Route path={"/saved-affirmations"} component={SavedAffirmations} />
+      <Route path={"/journal"} component={Journal} />
+      <Route path={"/meditations"} component={Meditations} />
+      <Route path={"/insights"} component={Insights} />
+      <Route path={"/404"} component={NotFound} />
+      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
