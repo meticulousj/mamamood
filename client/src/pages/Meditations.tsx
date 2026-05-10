@@ -6,12 +6,13 @@ import { Music, ArrowLeft, Play, CheckCircle2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import MeditationPlayer from "@/components/MeditationPlayer";
 
 export default function Meditations() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [playingId, setPlayingId] = useState<number | null>(null);
+  const [selectedMeditation, setSelectedMeditation] = useState<any | null>(null);
 
   const allMeditationsQuery = trpc.meditations.getAll.useQuery();
   const categoryMeditationsQuery = trpc.meditations.getByCategory.useQuery(
@@ -23,21 +24,13 @@ export default function Meditations() {
   const meditations = selectedCategory === "all" ? allMeditationsQuery.data : categoryMeditationsQuery.data;
   const categories = ["stress", "sleep", "focus", "gratitude", "energy"];
 
-  const handlePlayMeditation = (id: number) => {
-    setPlayingId(id);
-    // In a real app, this would play audio
-    setTimeout(() => {
-      handleCompleteMeditation(id);
-    }, 2000);
+  const handlePlayMeditation = (meditation: any) => {
+    setSelectedMeditation(meditation);
   };
 
   const handleCompleteMeditation = async (id: number) => {
-    try {
-      await completionMutation.mutateAsync({ meditationId: id });
-      setPlayingId(null);
-    } catch (error) {
-      console.error("Error recording completion:", error);
-    }
+    setSelectedMeditation(null);
+    await allMeditationsQuery.refetch();
   };
 
   const container = {
@@ -155,22 +148,12 @@ export default function Meditations() {
                       {meditation.description}
                     </p>
                     <Button
-                      onClick={() => handlePlayMeditation(meditation.id)}
-                      disabled={playingId === meditation.id || completionMutation.isPending}
+                      onClick={() => handlePlayMeditation(meditation)}
                       className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-                      style={{ fontFamily: 'Inter' }}
+                      style={{ fontFamily: "Inter" }}
                     >
-                      {playingId === meditation.id ? (
-                        <>
-                          <CheckCircle2 className="w-4 h-4 mr-2" />
-                          Completed
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-4 h-4 mr-2" />
-                          Play
-                        </>
-                      )}
+                      <Play className="w-4 h-4 mr-2" />
+                      Play
                     </Button>
                   </CardContent>
                 </Card>
@@ -194,6 +177,15 @@ export default function Meditations() {
           </motion.div>
         )}
       </main>
+
+      {/* Meditation Player Modal */}
+      {selectedMeditation && (
+        <MeditationPlayer
+          meditation={selectedMeditation}
+          onClose={() => setSelectedMeditation(null)}
+          onComplete={handleCompleteMeditation}
+        />
+      )}
     </div>
   );
 }
